@@ -1,0 +1,5 @@
+
+    <menu xmlns:android="http://schemas.android.com/apk/res/android">
+        <item android:title="John User" android:icon="@drawable/ic_launcher" android:id="@+id/item_one">
+        </item>
+    </menu>

@@ -1,0 +1,6 @@
+<resources>
+    <color name="color_scarlet_official">#d21034</color> <!-- Official shade of scarlet, probably want something darker -->
+    <color name="color_scarlet_darker">#960000</color>
+    <color name="color_grey_official">#5f6a72</color>
+    <color name="color_black_official">#000000</color>
+</resources>
