@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <!-- <RelativeLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    android:layout_alignParentTop="true">-->
+			<RelativeLayout
+			    android:id="@+id/detailsTopHalf"
+			    android:layout_width="wrap_content"
+				android:layout_height="fill_parent"
+	            android:orientation="vertical">
+	            
+				<TextView
+				    android:text="Event Name"
+					android:textSize="16sp"	
+	    		    android:id="@+id/detailsEventName"
+	              	android:layout_width="match_parent"
+	              	android:layout_height="wrap_content"
+	              	android:layout_alignParentLeft="true"
+	              	android:layout_below="@+id/detailsEventImage"/>
+	    		<TextView
+	    		    android:text="Event Date"
+	    		    android:textSize="15sp"
+					android:id="@+id/detailsEventDate"
+	        	  	android:layout_width="match_parent"
+			        android:layout_height="wrap_content"
+			        android:layout_alignParentLeft="true"
+			        android:layout_below="@+id/detailsEventName"/>
+	    		<Button 
+	    		    android:text="Now!"
+	    		    android:id="@+id/detailsattendButton"
+	    		    android:layout_width="100dp"
+	              	android:layout_height="100dp"
+	    		    android:layout_toRightOf="@+id/detailsEventImage"/>
+	    		<ImageView
+		    	    android:id="@+id/detailsEventImage"
+		    	    android:layout_width="wrap_content"
+		    	    android:layout_height="wrap_content"
+		    	    android:src="@drawable/defaultevent"
+		    	    android:layout_alignParentLeft="true"/>
+	    	</RelativeLayout>
+	    	
+	<TextView
+	    android:text="Description:"
+	    android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+	    android:layout_above="@+id/detailsDescription"/>
+	<TextView
+	    android:text="description"
+	    android:id="@+id/detailsDescription"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentBottom="true"/>
+</RelativeLayout>

@@ -26,13 +26,16 @@ public class EventAdapter extends ArrayAdapter<Event> {
 		View eventView = inflater.inflate(R.layout.list_event, parent,false);
 		TextView name = (TextView)eventView.findViewById(R.id.listEventText);
 		TextView date = (TextView)eventView.findViewById(R.id.listEventDate);
-		Log.d(null, "events.length: "+events.length);
-		Log.d(null, "position: "+position);
+		//Log.d(null, "events.length: "+events.length);
+		//Log.d(null, "position: "+position);
 		Event temp = events[position];
 		name.setText(temp.getName());
 		date.setText(new SimpleDateFormat("MMM d h:mm a").format(events[position].getDate()));
 		
 		return eventView;
+	}
+	public Event getEvent(int position){
+		return events[position];
 	}
 
 }

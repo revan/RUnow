@@ -11,6 +11,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 import android.view.Menu;
@@ -94,18 +95,21 @@ public class RUNowMainActivity extends Activity implements
 
 	@Override
 	public boolean onNavigationItemSelected(int position, long id) {
-		ListView listView = (ListView)findViewById(R.id.listView_events);
+		final ListView listView = (ListView)findViewById(R.id.listView_events);
 		
 		String tag=null;
 		if(position>0)
 			tag = tags[position-1];
-		
-		EventAdapter adapter = new EventAdapter(this, getEvents(tag));
+		final Event[] events = getEvents(tag);
+		EventAdapter adapter = new EventAdapter(this, events);
 		listView.setAdapter(adapter);
 		
 		listView.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id){
-				Toast.makeText(getApplicationContext(), "Clicked "+position, Toast.LENGTH_SHORT).show();
+				//Toast.makeText(getApplicationContext(), "Clicked "+position, Toast.LENGTH_SHORT).show();
+				Intent intent = new Intent(RUNowMainActivity.this, detailsEventActivity.class);
+				intent.putExtra("event", events[position]);
+				startActivity(intent);
 			}
 		});
 		listView.setOnLongClickListener(new OnLongClickListener() {
@@ -113,7 +117,8 @@ public class RUNowMainActivity extends Activity implements
 			@Override
 			public boolean onLongClick(View v) {
 				//TODO open new screen displaying details
-				Toast.makeText(getApplicationContext(), "long clicked", Toast.LENGTH_SHORT).show();
+				//Toast.makeText(getApplicationContext(), "long clicked", Toast.LENGTH_SHORT).show();
+				
 				return false;
 			}
 		});
@@ -130,11 +135,11 @@ public class RUNowMainActivity extends Activity implements
 		/**/
 		/* premade dummy values */
 		Event[] values = new Event[3];
-		values[0]=new Event("Soccer",new GregorianCalendar(2013, 3, 8, 15, 0).getTime(), new String[]{"sports"});
-		values[1]=new Event("Board Games",new GregorianCalendar(2013, 3, 8, 19, 20).getTime(), new String[]{});
-		values[2]=new Event("Chemistry Review",new GregorianCalendar(2013, 3, 8, 20,15).getTime(), new String[]{"studying"});
+		values[0]=new Event("Soccer",new GregorianCalendar(2013, 3, 8, 15, 0).getTime(), new String[]{"sports"},"default description default description default description default description default description default description");
+		values[1]=new Event("Board Games",new GregorianCalendar(2013, 3, 8, 19, 20).getTime(), new String[]{},"default description default description default description default description default description default description");
+		values[2]=new Event("Chemistry Review",new GregorianCalendar(2013, 3, 8, 20,15).getTime(), new String[]{"studying"},"default description default description default description default description default description default description");
 		//values[3]=new Event("Basketball",new GregorianCalendar(2013, 3, 8, 20, 45).getTime(), new String[]{"sports"});
-		//TODO null pointer when trying to view a tag with more than one event 
+		//TODO fix null pointer when trying to view a tag with more than one event 
 		
 		if(tag!=null){
 			//iterate through array of events, build PriorityQueue of matching events ordering by time
