@@ -1,9 +1,6 @@
 package edu.rutgers.runow;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.LinkedList;
 import java.util.PriorityQueue;
 
 import android.annotation.TargetApi;
@@ -13,15 +10,12 @@ import android.os.Bundle;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 public class RUNowMainActivity extends Activity implements
 		ActionBar.OnNavigationListener {
@@ -110,16 +104,6 @@ public class RUNowMainActivity extends Activity implements
 				Intent intent = new Intent(RUNowMainActivity.this, detailsEventActivity.class);
 				intent.putExtra("event", events[position]);
 				startActivity(intent);
-			}
-		});
-		listView.setOnLongClickListener(new OnLongClickListener() {
-			
-			@Override
-			public boolean onLongClick(View v) {
-				//TODO open new screen displaying details
-				//Toast.makeText(getApplicationContext(), "long clicked", Toast.LENGTH_SHORT).show();
-				
-				return false;
 			}
 		});
 		return true;
