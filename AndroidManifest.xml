@@ -22,9 +22,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="edu.rutgers.runow.detailsEventActivity"
-		/>
+        <activity android:name="edu.rutgers.runow.detailsEventActivity"/>
+        <activity android:name="edu.rutgers.runow.createEventActivity" />
     </application>
 
 </manifest>

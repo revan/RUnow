@@ -3,6 +3,8 @@ package edu.rutgers.runow;
 import java.util.GregorianCalendar;
 import java.util.PriorityQueue;
 
+import edu.rutgers.runow.R.id;
+
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -11,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -85,6 +88,16 @@ public class RUNowMainActivity extends Activity implements
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.activity_runow_main, menu);
 		return true;
+	}
+	
+	public boolean onOptionsItemSelected(MenuItem item){
+		switch(item.getItemId()){
+		case id.menu_create:
+			Intent intentCreate = new Intent(this, createEventActivity.class);
+			startActivity(intentCreate);
+			return true;
+		}
+		return false;
 	}
 
 	@Override

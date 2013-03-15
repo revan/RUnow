@@ -3,10 +3,12 @@
 
     <string name="app_name">RUNow</string>
     <string name="menu_search">Search</string>
+    <string name="menu_create">New Event</string>
+    <string name="menu_settings">Settings</string>
     <string name="title_studying">Studying</string>
     <string name="title_sports">Sports</string>
     <string name="title_all">All Events</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="menu_settings">Settings</string>
+    
+    <string name="tag_default">no tags</string>
 
 </resources>

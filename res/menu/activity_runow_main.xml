@@ -1,9 +1,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
  
     <item
+        android:id="@+id/menu_create"
+        android:orderInCategory="1"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/menu_create"
+        android:icon="@android:drawable/ic_input_add" />
+    <item
         android:id="@+id/menu_settings"
         android:orderInCategory="100"
-        android:showAsAction="never"
+        android:showAsAction="ifRoom|withText"
         android:title="@string/menu_settings"/>
     <item
         android:id="@+id/menu_search"
