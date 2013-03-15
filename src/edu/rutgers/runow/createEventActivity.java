@@ -31,7 +31,7 @@ public class createEventActivity extends Activity {
 		if(tag.equals("no tags"))
 			tag="";
 		
-		Event created = new Event(name, date, new String[]{tag},description);
+		Event created = new Event(name, date, tag,description);
 		
 		//TODO send event to server
 	}

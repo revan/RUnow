@@ -132,9 +132,10 @@ public class RUNowMainActivity extends Activity implements
 		/**/
 		/* premade dummy values */
 		Event[] values = new Event[3];
-		values[0]=new Event("Soccer",new GregorianCalendar(2013, 3, 8, 15, 0).getTime(), new String[]{"sports"},"default description default description default description default description default description default description");
-		values[1]=new Event("Board Games",new GregorianCalendar(2013, 3, 8, 19, 20).getTime(), new String[]{},"default description default description default description default description default description default description");
-		values[2]=new Event("Chemistry Review",new GregorianCalendar(2013, 3, 8, 20,15).getTime(), new String[]{"studying"},"default description default description default description default description default description default description");
+		String defaultDescription = "default description default description default description default description default description default description";
+		values[0]=new Event("Soccer",new GregorianCalendar(2013, 3, 8, 15, 0).getTime(), "sports",defaultDescription);
+		values[1]=new Event("Board Games",new GregorianCalendar(2013, 3, 8, 19, 20).getTime(), "",defaultDescription);
+		values[2]=new Event("Chemistry Review",new GregorianCalendar(2013, 3, 8, 20,15).getTime(), "studying",defaultDescription);
 		//values[3]=new Event("Basketball",new GregorianCalendar(2013, 3, 8, 20, 45).getTime(), new String[]{"sports"});
 		//TODO fix null pointer when trying to view a tag with more than one event 
 		
@@ -144,11 +145,8 @@ public class RUNowMainActivity extends Activity implements
 			
 			PriorityQueue<Event> matches = new PriorityQueue<Event>();
 			for(Event event : values){
-				for(String tempTag : event.getTags())
-					if(tag.equals(tempTag)){
-						matches.add(event);
-						break;
-					}
+				if(tag.equals(event.getTag()))
+					matches.add(event);
 			}
 			Event[] toReturn = new Event[matches.size()];
 			

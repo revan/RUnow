@@ -7,12 +7,12 @@ import java.util.Date;
 public class Event implements Comparable<Event>, Serializable{
 	private String name;
 	private Date date;
-	private String[] tags;
+	private String tag;
 	private String description;
-	public Event(String name, Date date, String[] tags, String description){
+	public Event(String name, Date date, String tag, String description){
 		this.setName(name);
 		this.setDate(date);
-		this.setTags(tags);
+		this.setTag(tag);
 		this.setDescription(description);
 	}
 	public String getName() {
@@ -27,11 +27,11 @@ public class Event implements Comparable<Event>, Serializable{
 	public void setDate(Date date) {
 		this.date = date;
 	}
-	public String[] getTags() {
-		return tags;
+	public String getTag() {
+		return tag;
 	}
-	public void setTags(String[] tags) {
-		this.tags = tags;
+	public void setTag(String tag) {
+		this.tag = tag;
 	}
 	public String getDescription() {
 		return description;
