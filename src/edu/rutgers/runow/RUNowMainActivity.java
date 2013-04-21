@@ -133,9 +133,10 @@ public class RUNowMainActivity extends Activity implements
 		/* premade dummy values */
 		Event[] values = new Event[3];
 		String defaultDescription = "default description default description default description default description default description default description";
-		values[0]=new Event("Soccer",new GregorianCalendar(2013, 3, 8, 15, 0).getTime(), "sports",defaultDescription);
-		values[1]=new Event("Board Games",new GregorianCalendar(2013, 3, 8, 19, 20).getTime(), "",defaultDescription);
-		values[2]=new Event("Chemistry Review",new GregorianCalendar(2013, 3, 8, 20,15).getTime(), "studying",defaultDescription);
+		String defaultLocation = "default location";
+		values[0]=new Event("Soccer",null,new GregorianCalendar(2013, 3, 8, 15, 0).getTime(), defaultLocation,"sports",defaultDescription);
+		values[1]=new Event("Board Games",null,new GregorianCalendar(2013, 3, 8, 19, 20).getTime(),defaultLocation, "",defaultDescription);
+		values[2]=new Event("Chemistry Review",null,new GregorianCalendar(2013, 3, 8, 20,15).getTime(),defaultLocation, "studying",defaultDescription);
 		//values[3]=new Event("Basketball",new GregorianCalendar(2013, 3, 8, 20, 45).getTime(), new String[]{"sports"});
 		//TODO fix null pointer when trying to view a tag with more than one event 
 		
@@ -145,7 +146,7 @@ public class RUNowMainActivity extends Activity implements
 			
 			PriorityQueue<Event> matches = new PriorityQueue<Event>();
 			for(Event event : values){
-				if(tag.equals(event.getTag()))
+				if(tag.equals(event.tag))
 					matches.add(event);
 			}
 			Event[] toReturn = new Event[matches.size()];

@@ -29,8 +29,8 @@ public class EventAdapter extends ArrayAdapter<Event> {
 		//Log.d(null, "events.length: "+events.length);
 		//Log.d(null, "position: "+position);
 		Event temp = events[position];
-		name.setText(temp.getName());
-		date.setText(new SimpleDateFormat("MMM d h:mm a").format(events[position].getDate()));
+		name.setText(temp.name);
+		date.setText(new SimpleDateFormat("MMM d h:mm a").format(events[position].when));
 		
 		return eventView;
 	}

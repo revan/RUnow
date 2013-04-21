@@ -25,14 +25,14 @@ public class detailsEventActivity extends Activity{
 		TextView date = (TextView)findViewById(R.id.detailsEventDate);
 		TextView description = (TextView)findViewById(R.id.detailsDescription);
 		
-		name.setText(event.getName());
-		date.setText(new SimpleDateFormat("MMM d h:mm a").format(event.getDate()));
-		description.setText(event.getDescription());
+		name.setText(event.name);
+		date.setText(new SimpleDateFormat("MMM d h:mm a").format(event.when));
+		description.setText(event.description);
 		
 		final ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setDisplayShowHomeEnabled(true);
-		actionBar.setTitle(event.getName());
+		actionBar.setTitle(event.name);
 		actionBar.setDisplayShowTitleEnabled(true);
 
 	}

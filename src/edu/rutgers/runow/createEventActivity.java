@@ -24,14 +24,16 @@ public class createEventActivity extends Activity {
 		
 		String name = nameField.getText().toString();
 		String description = descriptionsField.getText().toString();
-		Date date = new Date(dateField.getYear(),dateField.getMonth(),dateField.getDayOfMonth(),
+		Date when = new Date(dateField.getYear(),dateField.getMonth(),dateField.getDayOfMonth(),
 				timeField.getCurrentHour(),timeField.getCurrentMinute());
 		//String tag = spinnerTags.getSelectedItem().toString();
 		String tag ="no tags";
 		if(tag.equals("no tags"))
 			tag="";
 		
-		Event created = new Event(name, date, tag,description);
+		String location =""; //TODO implement location
+		
+		Event created = new Event(name, null, when, location, description, tag);
 		
 		//TODO send event to server
 	}

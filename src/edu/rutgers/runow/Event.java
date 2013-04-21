@@ -1,46 +1,26 @@
 /** Represents a single event */
+//TODO multitagging
 package edu.rutgers.runow;
 
 import java.io.Serializable;
 import java.util.Date;
 
 public class Event implements Comparable<Event>, Serializable{
-	private String name;
-	private Date date;
-	private String tag;
-	private String description;
-	public Event(String name, Date date, String tag, String description){
-		this.setName(name);
-		this.setDate(date);
-		this.setTag(tag);
-		this.setDescription(description);
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public Date getDate() {
-		return date;
-	}
-	public void setDate(Date date) {
-		this.date = date;
-	}
-	public String getTag() {
-		return tag;
-	}
-	public void setTag(String tag) {
-		this.tag = tag;
-	}
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String description) {
-		this.description = description;
+	public String name;
+	public Date when;
+	public String tag;
+	public String description;
+	public String location;
+	public Event(String name, String gid, Date when, String location, String description, String tag){
+		this.name=name;
+		//gid unimplemented
+		this.when=when;
+		this.tag=tag;
+		this.description=description;
+		this.location=location;
 	}
 	@Override
 	public int compareTo(Event other) {
-		return this.date.compareTo(other.getDate());
+		return this.when.compareTo(other.when);
 	}
 }
