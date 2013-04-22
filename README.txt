@@ -1,5 +1,4 @@
 TODO
-Getting events from server
 Sending attendance and new events to server
 Authentication
 Search

@@ -10,5 +10,7 @@
     <string name="title_all">All Events</string>
     
     <string name="tag_default">no tags</string>
+    
+    <string name="url">http://thawing-headland-7105.herokuapp.com</string>
 
 </resources>

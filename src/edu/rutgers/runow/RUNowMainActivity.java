@@ -1,7 +1,26 @@
 package edu.rutgers.runow;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.PriorityQueue;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import edu.rutgers.runow.R.id;
 
@@ -9,9 +28,11 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -51,6 +72,9 @@ public class RUNowMainActivity extends Activity implements
 								getString(R.string.title_all),
 								getString(R.string.title_sports),
 								getString(R.string.title_studying), }), this);
+		
+		//Allow non-asynchronous network io -- terrible coding practice, will cause UI lags
+		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build()); 
 	}
 
 	/**
@@ -122,7 +146,48 @@ public class RUNowMainActivity extends Activity implements
 		return true;
 	}
 	private Event[] getEvents(String tag){
-		//will eventually fetch events from server, using dummy events for now.
+		//fetch events from server
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpGet httpget = new HttpGet(getString(R.string.url)+"/events");
+		HttpResponse response;
+		try{
+			response=httpclient.execute(httpget);
+			Log.i("RUNow Server",response.getStatusLine().toString());
+			HttpEntity entity = response.getEntity();
+			if(entity!=null){
+                InputStream instream = entity.getContent();
+                String result= convertStreamToString(instream);
+                JSONObject json=new JSONObject(result);
+                JSONArray nameArray=json.names();
+                JSONArray valArray=json.toJSONArray(nameArray);
+                Log.i("RUNow Server",valArray.getString(0));
+                instream.close();        		
+			
+				//TODO parse data to create array of Event
+                JSONArray events = (JSONArray) valArray.get(0);
+				Event[] values = new Event[events.length()];
+                //Log.i("JSON",events.toString());
+				for(int i=0; i<values.length; i++){
+					Log.i("JSON",events.get(i).toString());
+					JSONObject event =(JSONObject) events.get(i);
+					DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+					String when = event.getString("when");
+					values[i]=new Event(event.getString("name"),
+										null,
+										(when.equals("null")?new Date():df.parse(when)),
+										event.getString("location"),
+										event.getString("description"),
+										""//tag
+										);
+				}
+				return values;
+			}
+		
+		}catch(Exception e){
+			Log.e("RUNow Server", e.toString());
+			e.printStackTrace();
+		}
+		
 		
 		/*fabricating dummy values*
 		Event[] values = new Event[50];
@@ -157,5 +222,34 @@ public class RUNowMainActivity extends Activity implements
 			return toReturn;
 		}
 		return values;
+		/**/
 	}
+	
+		//from http://senior.ceng.metu.edu.tr/2009/praeda/2009/01/11/a-simple-restful-client-at-android/
+		private static String convertStreamToString(InputStream is) {
+	        /*
+	         * To convert the InputStream to String we use the BufferedReader.readLine()
+	         * method. We iterate until the BufferedReader return null which means
+	         * there's no more data to read. Each line will appended to a StringBuilder
+	         * and returned as String.
+	         */
+	        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+	        StringBuilder sb = new StringBuilder();
+	 
+	        String line = null;
+	        try {
+	            while ((line = reader.readLine()) != null) {
+	                sb.append(line + "\n");
+	            }
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        } finally {
+	            try {
+	                is.close();
+	            } catch (IOException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        return sb.toString();
+	    }
 }
