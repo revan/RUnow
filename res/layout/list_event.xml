@@ -23,9 +23,17 @@
 				android:id="@+id/listEventDate"
         	  	android:layout_width="match_parent"
 		        android:layout_height="wrap_content"
-		        android:layout_alignParentBottom="true"
 		        android:layout_alignParentLeft="true"
 		        android:layout_below="@+id/listEventText"/>
+    		<TextView
+    		    android:text="@+id/listEventLocation"
+    		    android:textSize="15sp"
+    		    android:id="@+id/listEventLocation"
+    		    android:layout_width="match_parent"
+    		    android:layout_height="wrap_content"
+		        android:layout_alignParentLeft="true"
+    		    android:layout_alignParentBottom="true"
+    		    android:layout_below="@+id/listEventDate" />
     	</RelativeLayout>
     	<ImageView
     	    android:id="@+id/listEventImage"
