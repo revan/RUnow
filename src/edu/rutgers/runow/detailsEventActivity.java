@@ -23,10 +23,12 @@ public class detailsEventActivity extends Activity{
 		
 		TextView name = (TextView)findViewById(R.id.detailsEventName);
 		TextView date = (TextView)findViewById(R.id.detailsEventDate);
+		TextView location = (TextView)findViewById(R.id.detailsLocation);
 		TextView description = (TextView)findViewById(R.id.detailsDescription);
 		
 		name.setText(event.name);
 		date.setText(new SimpleDateFormat("MMM d h:mm a").format(event.when));
+		location.setText(event.location);
 		description.setText(event.description);
 		
 		final ActionBar actionBar = getActionBar();
