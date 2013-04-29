@@ -12,5 +12,6 @@
     <string name="tag_default">no tags</string>
     
     <string name="url">http://thawing-headland-7105.herokuapp.com</string>
+    <string name="detailsattendButton">Get Busy</string>
 
 </resources>

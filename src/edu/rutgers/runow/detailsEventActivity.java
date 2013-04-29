@@ -18,13 +18,11 @@ public class detailsEventActivity extends Activity{
 		Event event = (Event) getIntent().getSerializableExtra("event");
 		
 		TextView name = (TextView)findViewById(R.id.detailsEventName);
-		TextView date = (TextView)findViewById(R.id.detailsEventDate);
-		TextView location = (TextView)findViewById(R.id.detailsLocation);
+		TextView dateAndLocation = (TextView)findViewById(R.id.detailsEventDateLocation);
 		TextView description = (TextView)findViewById(R.id.detailsDescription);
 		
 		name.setText(event.name);
-		date.setText(new SimpleDateFormat("MMM d h:mm a").format(event.when));
-		location.setText(event.location);
+		dateAndLocation.setText(new SimpleDateFormat("h:mm a").format(event.when) + " at " + event.location);
 		description.setText(event.description);
 		
 		final ActionBar actionBar = getActionBar();
