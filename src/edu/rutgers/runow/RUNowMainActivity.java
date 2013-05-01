@@ -171,11 +171,12 @@ public class RUNowMainActivity extends Activity implements
 					JSONObject event =(JSONObject) events.get(i);
 					DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 					String when = event.getString("when");
-					values[i]=new Event(event.getString("name"),
+					values[i]=new Event(event.getInt("id"), event.getString("name"),
 										null,
 										(when.equals("null")?new Date():df.parse(when)),
 										event.getString("location"),
 										event.getString("description"),
+										event.getString("url"),
 										""//tag
 										);
 				}
@@ -195,12 +196,14 @@ public class RUNowMainActivity extends Activity implements
 			values[i]=new Event(Integer.toString(position)+" "+Integer.toString(i),new Date(0),tags);
 		/**/
 		/* premade dummy values */
+		
+		// updated to include new class members
 		Event[] values = new Event[3];
 		String defaultDescription = "default description default description default description default description default description default description";
 		String defaultLocation = "default location";
-		values[0]=new Event("Soccer",null,new GregorianCalendar(2013, 3, 8, 15, 0).getTime(), defaultLocation,"sports",defaultDescription);
-		values[1]=new Event("Board Games",null,new GregorianCalendar(2013, 3, 8, 19, 20).getTime(),defaultLocation, "",defaultDescription);
-		values[2]=new Event("Chemistry Review",null,new GregorianCalendar(2013, 3, 8, 20,15).getTime(),defaultLocation, "studying",defaultDescription);
+		values[0]=new Event(10, "Soccer",null,new GregorianCalendar(2013, 3, 8, 15, 0).getTime(), defaultLocation,"sports","",defaultDescription);
+		values[1]=new Event(11,"Board Games",null,new GregorianCalendar(2013, 3, 8, 19, 20).getTime(),defaultLocation, "","",defaultDescription);
+		values[2]=new Event(12,"Chemistry Review",null,new GregorianCalendar(2013, 3, 8, 20,15).getTime(),defaultLocation, "studying","",defaultDescription);
 		//values[3]=new Event("Basketball",new GregorianCalendar(2013, 3, 8, 20, 45).getTime(), new String[]{"sports"});
 		//TODO fix null pointer when trying to view a tag with more than one event 
 		

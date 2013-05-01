@@ -32,7 +32,10 @@ public class createEventActivity extends Activity {
 		
 		String location =""; //TODO implement location
 		
-		Event created = new Event(name, null, when, location, description, tag);
+		// adjusted Event to have id and url members, but these are set by the server
+		// maybe overloaded constructor?
+		
+		Event created = new Event(null, name, null, when, location, description, null, tag);
 		
 		//TODO send event to server
 	}

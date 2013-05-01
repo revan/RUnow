@@ -6,17 +6,21 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class Event implements Comparable<Event>, Serializable{
+	public Integer id;
 	public String name;
 	public Date when;
 	public String tag;
 	public String description;
 	public String location;
-	public Event(String name, String gid, Date when, String location, String description, String tag){
+	public String url;
+	public Event(Integer id, String name, String gid, Date when, String location, String description, String url, String tag){
+		this.id=id;
 		this.name=name;
 		//gid unimplemented
 		this.when=when;
 		this.tag=tag;
 		this.description=description;
+		this.url=url;
 		this.location=location;
 	}
 	@Override

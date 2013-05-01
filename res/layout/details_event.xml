@@ -49,4 +49,9 @@
 	    android:layout_alignParentLeft="true"
 	    android:layout_below="@id/detailsEventDateLocation"
 	    android:padding="8dp"/>
+	<ListView
+        android:id="@+id/listView_comments"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/detailsDescription" />
 </RelativeLayout>
