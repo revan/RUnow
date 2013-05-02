@@ -18,6 +18,12 @@
             android:layout_height="wrap_content"
             android:inputType="textCapSentences"
             android:hint="Event Name"/>
+		<EditText 
+            android:id="@+id/FieldEventLocation"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapSentences"
+            android:hint="Location"/>
         <EditText
             android:id="@+id/FieldEventDescription"
             android:layout_width="fill_parent"
