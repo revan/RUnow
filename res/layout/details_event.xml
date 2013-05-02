@@ -42,16 +42,39 @@
 	      	android:layout_alignParentLeft="true"
 	      	android:layout_toLeftOf="@id/detailsattendButton" />
 	<TextView
-	    android:text="description"
+	    android:text="Description"
 	    android:id="@+id/detailsDescription"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentLeft="true"
 	    android:layout_below="@id/detailsEventDateLocation"
 	    android:padding="8dp"/>
+	<RelativeLayout
+	    android:id="@+id/detailsComment"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content" 
+	    android:layout_below="@id/detailsDescription">
+		<EditText 
+		    android:hint="Comment"
+		    android:id="@+id/detailsCommentField"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_alignParentLeft="true"
+		    android:inputType="textCapSentences|textMultiLine"
+		    android:lines="2"
+		    />
+
+		<Button
+		    android:id="@+id/detailsCommentButton"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_alignParentRight="true"
+		    android:text="Post" />
+
+	</RelativeLayout>
 	<ListView
         android:id="@+id/listView_comments"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/detailsDescription" />
+        android:layout_below="@id/detailsComment" />
 </RelativeLayout>
