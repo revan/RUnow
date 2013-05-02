@@ -73,6 +73,7 @@ public class RUNowMainActivity extends Activity implements
 								getString(R.string.title_studying), }), this);
 		
 		//Allow non-asynchronous network io -- terrible coding practice, will cause UI lags
+		//TODO asynchronous network io
 		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build()); 
 	}
 
@@ -115,6 +116,9 @@ public class RUNowMainActivity extends Activity implements
 	
 	public boolean onOptionsItemSelected(MenuItem item){
 		switch(item.getItemId()){
+		case id.menu_refresh:
+			this.onNavigationItemSelected(0, 0);
+			return true;
 		case id.menu_create:
 			Intent intentCreate = new Intent(this, createEventActivity.class);
 			startActivity(intentCreate);
@@ -127,7 +131,7 @@ public class RUNowMainActivity extends Activity implements
 	public boolean onNavigationItemSelected(int position, long id) {
 		final ListView listView = (ListView)findViewById(R.id.listView_events);
 		
-		String tag=null;
+		String tag=getString(R.string.title_all);
 		if(position>0)
 			tag = tags[position-1];
 		final Event[] events = getEvents(tag);
@@ -162,7 +166,6 @@ public class RUNowMainActivity extends Activity implements
                 Log.i("RUNow Server",valArray.getString(0));
                 instream.close();        		
 			
-				//TODO parse data to create array of Event
                 JSONArray events = (JSONArray) valArray.get(0);
 				Event[] values = new Event[events.length()];
                 //Log.i("JSON",events.toString());
@@ -207,7 +210,7 @@ public class RUNowMainActivity extends Activity implements
 		//values[3]=new Event("Basketball",new GregorianCalendar(2013, 3, 8, 20, 45).getTime(), new String[]{"sports"});
 		//TODO fix null pointer when trying to view a tag with more than one event 
 		
-		if(tag!=null){
+		if(tag!=getString(R.string.title_all)){
 			//iterate through array of events, build PriorityQueue of matching events ordering by time
 			//then create array from PriorityQueue
 			
