@@ -13,26 +13,31 @@ import android.widget.TextView;
 public class EventAdapter extends ArrayAdapter<Event> {
 	private final Context context;
 	private final Event[] events;
-	
-	public EventAdapter(Context context, Event[] events){
-		super(context,R.layout.list_event,events);
-		this.context=context;
-		this.events=events;
+
+	public EventAdapter(Context context, Event[] events) {
+		super(context, R.layout.list_event, events);
+		this.context = context;
+		this.events = events;
 	}
-	public View getView(int position, View convertView, ViewGroup parent){
-		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View eventView = inflater.inflate(R.layout.list_event, parent,false);
-		TextView name = (TextView)eventView.findViewById(R.id.listEventText);
-		TextView date = (TextView)eventView.findViewById(R.id.listEventDate);
-		TextView location = (TextView)eventView.findViewById(R.id.listEventLocation);
+
+	public View getView(int position, View convertView, ViewGroup parent) {
+		LayoutInflater inflater = (LayoutInflater) context
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View eventView = inflater.inflate(R.layout.list_event, parent, false);
+		TextView name = (TextView) eventView.findViewById(R.id.listEventText);
+		TextView date = (TextView) eventView.findViewById(R.id.listEventDate);
+		TextView location = (TextView) eventView
+				.findViewById(R.id.listEventLocation);
 		Event temp = events[position];
 		name.setText(temp.name);
-		date.setText(new SimpleDateFormat("MMM d h:mm a").format(events[position].when));
+		date.setText(new SimpleDateFormat("h:mm a")
+				.format(events[position].when));
 		location.setText(temp.location);
-		
+
 		return eventView;
 	}
-	public Event getEvent(int position){
+
+	public Event getEvent(int position) {
 		return events[position];
 	}
 
