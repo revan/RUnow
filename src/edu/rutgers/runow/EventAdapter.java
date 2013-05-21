@@ -3,11 +3,14 @@ package edu.rutgers.runow;
 
 import java.text.SimpleDateFormat;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class EventAdapter extends ArrayAdapter<Event> {
@@ -21,6 +24,11 @@ public class EventAdapter extends ArrayAdapter<Event> {
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
+		// sample image to be used
+		String imageURI = "http://google.com/intl/en_ALL/images/logos/images_logo_lg.gif";
+		
+		// TODO implement caching on loaded images
+		
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View eventView = inflater.inflate(R.layout.list_event, parent, false);
@@ -28,11 +36,18 @@ public class EventAdapter extends ArrayAdapter<Event> {
 		TextView date = (TextView) eventView.findViewById(R.id.listEventDate);
 		TextView location = (TextView) eventView
 				.findViewById(R.id.listEventLocation);
+		ImageView image = (ImageView) eventView.findViewById(R.id.listEventImage);
 		Event temp = events[position];
 		name.setText(temp.name);
 		date.setText(new SimpleDateFormat("h:mm a")
 				.format(events[position].when));
 		location.setText(temp.location);
+		
+		// not sure if this goes here? 
+		ImageLoader imageLoader = ImageLoader.getInstance();
+		
+		
+		imageLoader.displayImage(imageURI, image);
 
 		return eventView;
 	}

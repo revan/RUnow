@@ -21,6 +21,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
 import edu.rutgers.runow.R.id;
 
 import android.annotation.TargetApi;
@@ -75,6 +78,11 @@ public class RUNowMainActivity extends Activity implements
 		// cause UI lags
 		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
 				.permitAll().build());
+
+		// Set up Universal Image Loader
+		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
+        .build();
+		ImageLoader.getInstance().init(config);
 	}
 
 	/**
