@@ -21,6 +21,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
@@ -79,10 +80,20 @@ public class RUNowMainActivity extends Activity implements
 		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
 				.permitAll().build());
 
+		
 		// Set up Universal Image Loader
+		
+		// configure caching
+		DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+        .cacheInMemory()
+        .cacheOnDisc()
+        .build();
+		
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
+		.defaultDisplayImageOptions(defaultOptions)
         .build();
 		ImageLoader.getInstance().init(config);
+		
 	}
 
 	/**

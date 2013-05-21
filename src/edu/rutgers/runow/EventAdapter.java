@@ -44,10 +44,8 @@ public class EventAdapter extends ArrayAdapter<Event> {
 		location.setText(temp.location);
 		
 		// not sure if this goes here? 
-		ImageLoader imageLoader = ImageLoader.getInstance();
 		
-		
-		imageLoader.displayImage(imageURI, image);
+		ImageLoader.getInstance().displayImage(imageURI, image);
 
 		return eventView;
 	}
