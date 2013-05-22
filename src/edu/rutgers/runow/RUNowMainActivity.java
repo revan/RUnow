@@ -25,6 +25,9 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
+import com.facebook.*;
+import com.facebook.model.*;
+
 import edu.rutgers.runow.R.id;
 
 import android.annotation.TargetApi;
@@ -35,18 +38,41 @@ import android.os.StrictMode;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-public class RUNowMainActivity extends Activity implements
+public class RUNowMainActivity extends FragmentActivity implements
 		ActionBar.OnNavigationListener {
+	
+	private static final int SPLASH = 0;
+	private static final int SELECTION = 1;
+	private static final int FRAGMENT_COUNT = SELECTION +1;
 
+	private Fragment[] fragments = new Fragment[FRAGMENT_COUNT];
+	
+	private boolean isResumed = false;
+	
+	private UiLifecycleHelper uiHelper;
+	private Session.StatusCallback callback = 
+	    new Session.StatusCallback() {
+	    @Override
+	    public void call(Session session, 
+	            SessionState state, Exception exception) {
+	        onSessionStateChange(session, state, exception);
+	    }
+	};
+	
 	String[] tags = new String[] { "sports", "studying" };
 
 	/**
@@ -64,6 +90,7 @@ public class RUNowMainActivity extends Activity implements
 		final ActionBar actionBar = getActionBar();
 		actionBar.setDisplayShowTitleEnabled(false);
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+		actionBar.hide();
 
 		// Set up the dropdown list navigation in the action bar.
 		actionBar.setListNavigationCallbacks(
@@ -75,26 +102,120 @@ public class RUNowMainActivity extends Activity implements
 								getString(R.string.title_sports),
 								getString(R.string.title_studying), }), this);
 
-		// Allow non-asynchronous network io -- terrible coding practice, will
-		// cause UI lags
-		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-				.permitAll().build());
-
 		// Set up Universal Image Loader
 
 		// configure caching
 		DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-				.cacheInMemory().cacheOnDisc().build();
+			.cacheInMemory().cacheOnDisc().build();
 
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(
 				getApplicationContext()).defaultDisplayImageOptions(
-				defaultOptions).build();
+						defaultOptions).build();
 		ImageLoader.getInstance().init(config);
+		
+		
 		//Allow non-asynchronous network io -- terrible coding practice, will cause UI lags
 		//TODO asynchronous network io
 		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build()); 
+		
+		
+		//hide fragments on start
+		 FragmentManager fm = getSupportFragmentManager();
+		 fragments[SPLASH] = fm.findFragmentById(R.id.splashFragment);
+		 fragments[SELECTION] = fm.findFragmentById(R.id.selectionFragment);
+
+		 FragmentTransaction transaction = fm.beginTransaction();
+		 for(int i = 0; i < fragments.length; i++) {
+			 transaction.hide(fragments[i]);
+		 }
+		 transaction.commit();
+		 
+		 uiHelper = new UiLifecycleHelper(this, callback);
+		 uiHelper.onCreate(savedInstanceState);
+	}
+	
+	private void showFragment(int fragmentIndex, boolean addToBackStack) {
+	    FragmentManager fm = getSupportFragmentManager();
+	    FragmentTransaction transaction = fm.beginTransaction();
+	    for (int i = 0; i < fragments.length; i++) {
+	        if (i == fragmentIndex) {
+	            transaction.show(fragments[i]);
+	        } else {
+	            transaction.hide(fragments[i]);
+	        }
+	    }
+	    if (addToBackStack) {
+	        transaction.addToBackStack(null);
+	    }
+	    if(fragmentIndex==SELECTION)
+	    	getActionBar().show();
+	    else
+	    	getActionBar().hide();
+	    transaction.commit();
+	}
+	@Override
+	public void onResume() {
+	    super.onResume();
+	    uiHelper.onResume();
+	    isResumed = true;
 	}
 
+	@Override
+	public void onPause() {
+	    super.onPause();
+	    uiHelper.onPause();
+	    isResumed = false;
+	}
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	    super.onActivityResult(requestCode, resultCode, data);
+	    uiHelper.onActivityResult(requestCode, resultCode, data);
+	}
+
+	@Override
+	public void onDestroy() {
+	    super.onDestroy();
+	    uiHelper.onDestroy();
+	}
+	private void onSessionStateChange(Session session, SessionState state, Exception exception) {
+	    // Only make changes if the activity is visible
+	    if (isResumed) {
+	        FragmentManager manager = getSupportFragmentManager();
+	        // Get the number of entries in the back stack
+	        int backStackSize = manager.getBackStackEntryCount();
+	        // Clear the back stack
+	        for (int i = 0; i < backStackSize; i++) {
+	            manager.popBackStack();
+	        }
+	        if (state.isOpened()) {
+	            // If the session state is open:
+	            // Show the authenticated fragment
+	            showFragment(SELECTION, false);
+	        } else if (state.isClosed()) {
+	            // If the session state is closed:
+	            // Show the login fragment
+	            showFragment(SPLASH, false);
+	        }
+	    }
+	}
+	@Override
+	protected void onResumeFragments() {
+	    super.onResumeFragments();
+	    Session session = Session.getActiveSession();
+
+	    if (session != null && session.isOpened()) {
+	        // if the session is already open,
+	        // try to show the selection fragment
+	        showFragment(SELECTION, false);
+	    } else {
+	        // otherwise present the splash screen
+	        // and ask the person to login.
+	        showFragment(SPLASH, false);
+	    }
+	}
+	
+	//End of Facebook Fragment managing
+	
 	/**
 	 * Backward-compatible version of {@link ActionBar#getThemedContext()} that
 	 * simply returns the {@link android.app.Activity} if
@@ -111,6 +232,7 @@ public class RUNowMainActivity extends Activity implements
 
 	@Override
 	public void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
 		// Restore the previously serialized current dropdown position.
 		if (savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM)) {
 			getActionBar().setSelectedNavigationItem(
@@ -120,9 +242,11 @@ public class RUNowMainActivity extends Activity implements
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		// Serialize the current dropdown position.
+		super.onSaveInstanceState(outState);
+		//Serialize the current dropdown position.
 		outState.putInt(STATE_SELECTED_NAVIGATION_ITEM, getActionBar()
 				.getSelectedNavigationIndex());
+		uiHelper.onSaveInstanceState(outState);
 	}
 
 	@Override
@@ -141,9 +265,15 @@ public class RUNowMainActivity extends Activity implements
 			Intent intentCreate = new Intent(this, createEventActivity.class);
 			startActivity(intentCreate);
 			return true;
+		case id.menu_logout:
+			Session session = Session.getActiveSession();
+			if(session!=null)
+				session.closeAndClearTokenInformation();
+			return true;
 		}
 		return false;
 	}
+	//TODO
 
 	@Override
 	public boolean onNavigationItemSelected(int position, long id) {

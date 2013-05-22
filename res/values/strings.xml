@@ -13,5 +13,6 @@
     
     <string name="url">http://thawing-headland-7105.herokuapp.com</string>
     <string name="detailsattendButton">Get Busy</string>
+    <string name="app_id">372674359503420</string>
 
 </resources>
