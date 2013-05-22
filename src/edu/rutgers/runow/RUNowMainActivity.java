@@ -80,26 +80,19 @@ public class RUNowMainActivity extends Activity implements
 		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
 				.permitAll().build());
 
-		
 		// Set up Universal Image Loader
-		
+
 		// configure caching
 		DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-        .cacheInMemory()
-        .cacheOnDisc()
-        .build();
-		
-		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
-		.defaultDisplayImageOptions(defaultOptions)
-        .build();
+				.cacheInMemory().cacheOnDisc().build();
+
+		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(
+				getApplicationContext()).defaultDisplayImageOptions(
+				defaultOptions).build();
 		ImageLoader.getInstance().init(config);
-		
-<<<<<<< HEAD
 		//Allow non-asynchronous network io -- terrible coding practice, will cause UI lags
 		//TODO asynchronous network io
 		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build()); 
-=======
->>>>>>> 616d84c5ed21dab25b2045131a3db0f650576a44
 	}
 
 	/**
@@ -211,7 +204,9 @@ public class RUNowMainActivity extends Activity implements
 							(when.equals("null") ? new Date() : df.parse(when)),
 							event.getString("location"), event
 									.getString("description"), event
-									.getString("url"), ""// tag
+									.getString("url"), event
+									.getString("image_url"), 
+									"" // tag
 					);
 				}
 				return values;
@@ -237,13 +232,13 @@ public class RUNowMainActivity extends Activity implements
 		String defaultLocation = "default location";
 		values[0] = new Event(10, "Soccer", null, new GregorianCalendar(2013,
 				3, 8, 15, 0).getTime(), defaultLocation, "sports", "",
-				defaultDescription);
+				defaultDescription, "");
 		values[1] = new Event(11, "Board Games", null, new GregorianCalendar(
 				2013, 3, 8, 19, 20).getTime(), defaultLocation, "", "",
-				defaultDescription);
+				defaultDescription, "");
 		values[2] = new Event(12, "Chemistry Review", null,
 				new GregorianCalendar(2013, 3, 8, 20, 15).getTime(),
-				defaultLocation, "studying", "", defaultDescription);
+				defaultLocation, "studying", "", defaultDescription, "");
 		// values[3]=new Event("Basketball",new GregorianCalendar(2013, 3, 8,
 		// 20, 45).getTime(), new String[]{"sports"});
 		// TODO fix null pointer when trying to view a tag with more than one

@@ -13,7 +13,8 @@ public class Event implements Comparable<Event>, Serializable{
 	public String description;
 	public String location;
 	public String url;
-	public Event(Integer id, String name, String gid, Date when, String location, String description, String url, String tag){
+	public String image_url;
+	public Event(Integer id, String name, String gid, Date when, String location, String description, String url, String image_url, String tag){
 		this.id=id;
 		this.name=name;
 		//gid unimplemented
@@ -21,6 +22,7 @@ public class Event implements Comparable<Event>, Serializable{
 		this.tag=tag;
 		this.description=description;
 		this.url=url;
+		this.image_url=image_url;
 		this.location=location;
 	}
 	@Override
