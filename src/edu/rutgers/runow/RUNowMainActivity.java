@@ -24,6 +24,7 @@ import org.json.JSONObject;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 
 import edu.rutgers.runow.R.id;
 
@@ -51,7 +52,7 @@ public class RUNowMainActivity extends Activity implements
 
 	/**
 	 * The serialization (saved instance state) Bundle key representing the
-	 * current dropdown position.
+	 * current drop	down position.
 	 */
 	private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
 
@@ -84,7 +85,7 @@ public class RUNowMainActivity extends Activity implements
 
 		// configure caching
 		DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-				.cacheInMemory().cacheOnDisc().build();
+				.cacheInMemory().cacheOnDisc().displayer(new FadeInBitmapDisplayer(500)).build();
 
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(
 				getApplicationContext()).defaultDisplayImageOptions(

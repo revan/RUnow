@@ -22,7 +22,7 @@ public class CommentAdapter extends ArrayAdapter<Comment> {
 		View commentView = inflater.inflate(R.layout.list_comment, parent, false);
 		TextView user = (TextView) commentView.findViewById(R.id.listCommentUser);
 		TextView content = (TextView) commentView.findViewById(R.id.listCommentContent);
-		
+		//TODO move comments from listview to linearlayout
 		Comment temp = comments[position];
 		
 		user.setText(temp.user);
