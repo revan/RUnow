@@ -25,7 +25,7 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
-//import edu.rutgers.runow.R.id;
+import edu.rutgers.runow.R.id;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
@@ -244,7 +244,7 @@ public class RUNowMainActivity extends Activity implements
 		// TODO fix null pointer when trying to view a tag with more than one
 		// event
 
-		if (tag != getString(R.string.title_all) {
+		if (tag != getString(R.string.title_all)) {
 			// iterate through array of events, build PriorityQueue of matching
 			// events ordering by time
 			// then create array from PriorityQueue
