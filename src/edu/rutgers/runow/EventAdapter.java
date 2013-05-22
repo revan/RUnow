@@ -27,8 +27,6 @@ public class EventAdapter extends ArrayAdapter<Event> {
 		// sample image to be used
 		String imageURI = "http://google.com/intl/en_ALL/images/logos/images_logo_lg.gif";
 		
-		// TODO implement caching on loaded images
-		
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View eventView = inflater.inflate(R.layout.list_event, parent, false);
@@ -43,9 +41,7 @@ public class EventAdapter extends ArrayAdapter<Event> {
 				.format(events[position].when));
 		location.setText(temp.location);
 		
-		// not sure if this goes here? 
-		
-		ImageLoader.getInstance().displayImage(imageURI, image);
+		ImageLoader.getInstance().displayImage(temp.image_url, image);
 
 		return eventView;
 	}
