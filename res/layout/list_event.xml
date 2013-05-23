@@ -1,57 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:padding="8dp">
+    android:layout_height="wrap_content"
+    android:background="@drawable/inset_container"
+    android:paddingBottom="8dp" >
 
-    <RelativeLayout
+    <ImageView
+        android:id="@+id/listEventImage"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/eventcontainer"
+        android:layout_alignParentTop="true"
+        android:adjustViewBounds="true"
+        android:contentDescription="Event Image"
+        android:paddingBottom="8dp" />
+
+    <TextView
+        android:id="@+id/listEventText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/listEventImage"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:text="@+id/listEventText"
+        android:textSize="22sp" />
+
+    <TextView
+        android:id="@+id/listEventDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/listEventText"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:text="@id/listEventDate"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/listEventLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/listEventDate"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         android:paddingBottom="8dp"
-         >
+        android:text="@id/listEventLocation"
+        android:textSize="14sp" />
 
-        <ImageView
-            android:id="@+id/listEventImage"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:contentDescription="Event Image"
-            android:adjustViewBounds="true"
-            android:paddingBottom="8dp" />
-
-            <TextView
-                android:id="@+id/listEventText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/listEventImage"
-                android:text="@+id/listEventText"
-                android:textSize="22sp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp" />
-
-            <TextView
-                android:id="@+id/listEventDate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_below="@id/listEventText"
-                android:text="@id/listEventDate"
-                android:textSize="18sp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp" />
-
-            <TextView
-                android:id="@+id/listEventLocation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentLeft="true"
-                android:layout_below="@id/listEventDate"
-                android:text="@id/listEventLocation"
-                android:textSize="14sp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp" />
-        </RelativeLayout>
-
-</LinearLayout>
+</RelativeLayout>

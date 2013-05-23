@@ -24,12 +24,11 @@ public class EventAdapter extends ArrayAdapter<Event> {
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
-		// sample image to be used
-		String imageURI = "http://google.com/intl/en_ALL/images/logos/images_logo_lg.gif";
 		
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View eventView = inflater.inflate(R.layout.list_event, parent, false);
+		//optimize to use holder?
 		TextView name = (TextView) eventView.findViewById(R.id.listEventText);
 		TextView date = (TextView) eventView.findViewById(R.id.listEventDate);
 		TextView location = (TextView) eventView
@@ -40,6 +39,9 @@ public class EventAdapter extends ArrayAdapter<Event> {
 		date.setText(new SimpleDateFormat("h:mm a")
 				.format(events[position].when));
 		location.setText(temp.location);
+		
+		// TODO placeholder for image so when it loads
+		// it doesn't resize event list!
 		
 		ImageLoader.getInstance().displayImage(temp.image_url, image);
 

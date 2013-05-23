@@ -18,6 +18,8 @@ import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -29,6 +31,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -42,12 +45,14 @@ public class detailsEventActivity extends Activity{
 		final TextView name = (TextView)findViewById(R.id.detailsEventName);
 		final TextView dateAndLocation = (TextView)findViewById(R.id.detailsEventDateLocation);
 		final TextView description = (TextView)findViewById(R.id.detailsDescription);
+		final ImageView image = (ImageView) findViewById(R.id.detailsEventImage);
 		
 		final EditText commentField = (EditText)findViewById(R.id.detailsCommentField);
 		
 		name.setText(event.name);
 		dateAndLocation.setText(new SimpleDateFormat("h:mm a").format(event.when) + " at " + event.location);
 		description.setText(event.description);
+		ImageLoader.getInstance().displayImage(event.image_url, image);
 		
 		final ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
