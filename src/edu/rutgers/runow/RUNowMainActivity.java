@@ -33,9 +33,12 @@ import edu.rutgers.runow.R.id;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.support.v4.app.Fragment;
@@ -54,10 +57,11 @@ import android.widget.ListView;
 
 public class RUNowMainActivity extends FragmentActivity implements
 		ActionBar.OnNavigationListener {
+	private GraphUser facebookUser;
 	
 	private static final int SPLASH = 0;
-	private static final int SELECTION = 1;
-	private static final int FRAGMENT_COUNT = SELECTION +1;
+	private static final int LIST = 1;
+	private static final int FRAGMENT_COUNT = LIST +1;
 
 	private Fragment[] fragments = new Fragment[FRAGMENT_COUNT];
 	
@@ -122,7 +126,7 @@ public class RUNowMainActivity extends FragmentActivity implements
 		//hide fragments on start
 		 FragmentManager fm = getSupportFragmentManager();
 		 fragments[SPLASH] = fm.findFragmentById(R.id.splashFragment);
-		 fragments[SELECTION] = fm.findFragmentById(R.id.selectionFragment);
+		 fragments[LIST] = fm.findFragmentById(R.id.selectionFragment);
 
 		 FragmentTransaction transaction = fm.beginTransaction();
 		 for(int i = 0; i < fragments.length; i++) {
@@ -147,12 +151,97 @@ public class RUNowMainActivity extends FragmentActivity implements
 	    if (addToBackStack) {
 	        transaction.addToBackStack(null);
 	    }
-	    if(fragmentIndex==SELECTION)
+	    if(fragmentIndex==LIST){
 	    	getActionBar().show();
+	    	makeMeRequest(Session.getActiveSession());
+	    }
 	    else
 	    	getActionBar().hide();
 	    transaction.commit();
 	}
+	
+	private void makeMeRequest(final Session session) {
+        Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
+            @Override
+            public void onCompleted(GraphUser user, Response response) {
+                if (session == Session.getActiveSession()) {
+                    if (user != null) {
+                    	facebookUser=user;
+                    }
+                }
+                if (response.getError() != null) {
+                    //handleError(response.getError()); //TODO handle io errors
+                }
+            }
+        });
+        request.executeAsync();
+
+    }
+	
+	/*
+	private void handleError(FacebookRequestError error) {
+        DialogInterface.OnClickListener listener = null;
+        String dialogBody = null;
+
+        if (error == null) {
+            dialogBody = "An error has occurred.";
+        } else {
+            switch (error.getCategory()) {
+                case AUTHENTICATION_RETRY:
+                    // tell the user what happened by getting the message id, and
+                    // retry the operation later
+                    String userAction = (error.shouldNotifyUser()) ? "" :
+                            getString(error.getUserActionMessageId());
+                    dialogBody = "Authentication error.";
+                    listener = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://m.facebook.com"));
+                            startActivity(intent);
+                        }
+                    };
+                    break;
+
+                case AUTHENTICATION_REOPEN_SESSION:
+                    // close the session and reopen it.
+                    dialogBody = "Authentication error.";
+                    listener = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Session session = Session.getActiveSession();
+                            if (session != null && !session.isClosed()) {
+                                session.closeAndClearTokenInformation();
+                            }
+                        }
+                    };
+                    break;
+
+                case SERVER:
+                case THROTTLING:
+                    // this is usually temporary, don't clear the fields, and
+                    // ask the user to try again
+                    dialogBody = "Connection error, try again.";
+                    break;
+
+                case OTHER:
+                case CLIENT:
+                default:
+                    // an unknown issue occurred, this could be a code error, or
+                    // a server side issue, log the issue, and either ask the
+                    // user to retry, or file a bug
+                    dialogBody = "An error has occurred";
+                    break;
+            }
+        }
+
+        new AlertDialog.Builder(getActivity())
+                .setPositiveButton("Okay",listener)
+                .setTitle("Error")
+                .setMessage(dialogBody)
+                .show();
+    }
+	*/
+
 	@Override
 	public void onResume() {
 	    super.onResume();
@@ -190,7 +279,7 @@ public class RUNowMainActivity extends FragmentActivity implements
 	        if (state.isOpened()) {
 	            // If the session state is open:
 	            // Show the authenticated fragment
-	            showFragment(SELECTION, false);
+	            showFragment(LIST, false);
 	        } else if (state.isClosed()) {
 	            // If the session state is closed:
 	            // Show the login fragment
@@ -206,7 +295,7 @@ public class RUNowMainActivity extends FragmentActivity implements
 	    if (session != null && session.isOpened()) {
 	        // if the session is already open,
 	        // try to show the selection fragment
-	        showFragment(SELECTION, false);
+	        showFragment(LIST, false);
 	    } else {
 	        // otherwise present the splash screen
 	        // and ask the person to login.
@@ -294,6 +383,7 @@ public class RUNowMainActivity extends FragmentActivity implements
 				Intent intent = new Intent(RUNowMainActivity.this,
 						detailsEventActivity.class);
 				intent.putExtra("event", events[position]);
+				intent.putExtra("facebookUser",facebookUser.getInnerJSONObject().toString());
 				startActivity(intent);
 			}
 		});
