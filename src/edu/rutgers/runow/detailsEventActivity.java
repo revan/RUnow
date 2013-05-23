@@ -16,9 +16,13 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
+
+import com.facebook.model.GraphObject;
+import com.facebook.model.GraphUser;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
@@ -39,6 +43,23 @@ public class detailsEventActivity extends Activity{
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.details_event);
+		
+		GraphUser user=null;
+		try {
+			user = GraphObject.Factory.create(new JSONObject(getIntent().getStringExtra("facebookUser")), GraphUser.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		final String userName;
+		final String userId;
+		if(user==null){
+			userName="";
+			userId="";
+		}
+		else{
+			userName = user.getName();
+			userId = user.getId();
+		}
 		
 		final Event event = (Event) getIntent().getSerializableExtra("event");
 		
@@ -80,8 +101,9 @@ public class detailsEventActivity extends Activity{
 				JSONObject json = new JSONObject();
 				try{
 					JSONObject data = new JSONObject();
-					data.put("user","default");
+					data.put("user",userName);
 					data.put("content",commentField.getText());
+					//data.put("id",userId);
 					
 					json.put("comment", data);
 					ByteArrayEntity message = new ByteArrayEntity(json.toString().getBytes("UTF8"));

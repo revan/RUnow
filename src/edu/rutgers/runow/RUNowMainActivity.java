@@ -26,28 +26,60 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 
+import com.facebook.*;
+import com.facebook.model.*;
+
 import edu.rutgers.runow.R.id;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-public class RUNowMainActivity extends Activity implements
+public class RUNowMainActivity extends FragmentActivity implements
 		ActionBar.OnNavigationListener {
+	private GraphUser facebookUser;
+	
+	private static final int SPLASH = 0;
+	private static final int LIST = 1;
+	private static final int FRAGMENT_COUNT = LIST +1;
 
+	private Fragment[] fragments = new Fragment[FRAGMENT_COUNT];
+	
+	private boolean isResumed = false;
+	
+	private UiLifecycleHelper uiHelper;
+	private Session.StatusCallback callback = 
+	    new Session.StatusCallback() {
+	    @Override
+	    public void call(Session session, 
+	            SessionState state, Exception exception) {
+	        onSessionStateChange(session, state, exception);
+	    }
+	};
+	
 	String[] tags = new String[] { "sports", "studying" };
 
 	/**
@@ -65,6 +97,7 @@ public class RUNowMainActivity extends Activity implements
 		final ActionBar actionBar = getActionBar();
 		actionBar.setDisplayShowTitleEnabled(false);
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+		actionBar.hide();
 
 		// Set up the dropdown list navigation in the action bar.
 		actionBar.setListNavigationCallbacks(
@@ -76,11 +109,6 @@ public class RUNowMainActivity extends Activity implements
 								getString(R.string.title_sports),
 								getString(R.string.title_studying), }), this);
 
-		// Allow non-asynchronous network io -- terrible coding practice, will
-		// cause UI lags
-		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-				.permitAll().build());
-
 		// Set up Universal Image Loader
 
 		// configure caching
@@ -89,13 +117,197 @@ public class RUNowMainActivity extends Activity implements
 
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(
 				getApplicationContext()).defaultDisplayImageOptions(
-				defaultOptions).build();
+						defaultOptions).build();
 		ImageLoader.getInstance().init(config);
+		
+		
 		//Allow non-asynchronous network io -- terrible coding practice, will cause UI lags
 		//TODO asynchronous network io
 		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build()); 
+		
+		
+		//hide fragments on start
+		 FragmentManager fm = getSupportFragmentManager();
+		 fragments[SPLASH] = fm.findFragmentById(R.id.splashFragment);
+		 fragments[LIST] = fm.findFragmentById(R.id.selectionFragment);
+
+		 FragmentTransaction transaction = fm.beginTransaction();
+		 for(int i = 0; i < fragments.length; i++) {
+			 transaction.hide(fragments[i]);
+		 }
+		 transaction.commit();
+		 
+		 uiHelper = new UiLifecycleHelper(this, callback);
+		 uiHelper.onCreate(savedInstanceState);
+	}
+	
+	private void showFragment(int fragmentIndex, boolean addToBackStack) {
+	    FragmentManager fm = getSupportFragmentManager();
+	    FragmentTransaction transaction = fm.beginTransaction();
+	    for (int i = 0; i < fragments.length; i++) {
+	        if (i == fragmentIndex) {
+	            transaction.show(fragments[i]);
+	        } else {
+	            transaction.hide(fragments[i]);
+	        }
+	    }
+	    if (addToBackStack) {
+	        transaction.addToBackStack(null);
+	    }
+	    if(fragmentIndex==LIST){
+	    	getActionBar().show();
+	    	makeMeRequest(Session.getActiveSession());
+	    }
+	    else
+	    	getActionBar().hide();
+	    transaction.commit();
+	}
+	
+	private void makeMeRequest(final Session session) {
+        Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
+            @Override
+            public void onCompleted(GraphUser user, Response response) {
+                if (session == Session.getActiveSession()) {
+                    if (user != null) {
+                    	facebookUser=user;
+                    }
+                }
+                if (response.getError() != null) {
+                    //handleError(response.getError()); //TODO handle io errors
+                }
+            }
+        });
+        request.executeAsync();
+
+    }
+	
+	/*
+	private void handleError(FacebookRequestError error) {
+        DialogInterface.OnClickListener listener = null;
+        String dialogBody = null;
+
+        if (error == null) {
+            dialogBody = "An error has occurred.";
+        } else {
+            switch (error.getCategory()) {
+                case AUTHENTICATION_RETRY:
+                    // tell the user what happened by getting the message id, and
+                    // retry the operation later
+                    String userAction = (error.shouldNotifyUser()) ? "" :
+                            getString(error.getUserActionMessageId());
+                    dialogBody = "Authentication error.";
+                    listener = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://m.facebook.com"));
+                            startActivity(intent);
+                        }
+                    };
+                    break;
+
+                case AUTHENTICATION_REOPEN_SESSION:
+                    // close the session and reopen it.
+                    dialogBody = "Authentication error.";
+                    listener = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Session session = Session.getActiveSession();
+                            if (session != null && !session.isClosed()) {
+                                session.closeAndClearTokenInformation();
+                            }
+                        }
+                    };
+                    break;
+
+                case SERVER:
+                case THROTTLING:
+                    // this is usually temporary, don't clear the fields, and
+                    // ask the user to try again
+                    dialogBody = "Connection error, try again.";
+                    break;
+
+                case OTHER:
+                case CLIENT:
+                default:
+                    // an unknown issue occurred, this could be a code error, or
+                    // a server side issue, log the issue, and either ask the
+                    // user to retry, or file a bug
+                    dialogBody = "An error has occurred";
+                    break;
+            }
+        }
+
+        new AlertDialog.Builder(getActivity())
+                .setPositiveButton("Okay",listener)
+                .setTitle("Error")
+                .setMessage(dialogBody)
+                .show();
+    }
+	*/
+
+	@Override
+	public void onResume() {
+	    super.onResume();
+	    uiHelper.onResume();
+	    isResumed = true;
 	}
 
+	@Override
+	public void onPause() {
+	    super.onPause();
+	    uiHelper.onPause();
+	    isResumed = false;
+	}
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	    super.onActivityResult(requestCode, resultCode, data);
+	    uiHelper.onActivityResult(requestCode, resultCode, data);
+	}
+
+	@Override
+	public void onDestroy() {
+	    super.onDestroy();
+	    uiHelper.onDestroy();
+	}
+	private void onSessionStateChange(Session session, SessionState state, Exception exception) {
+	    // Only make changes if the activity is visible
+	    if (isResumed) {
+	        FragmentManager manager = getSupportFragmentManager();
+	        // Get the number of entries in the back stack
+	        int backStackSize = manager.getBackStackEntryCount();
+	        // Clear the back stack
+	        for (int i = 0; i < backStackSize; i++) {
+	            manager.popBackStack();
+	        }
+	        if (state.isOpened()) {
+	            // If the session state is open:
+	            // Show the authenticated fragment
+	            showFragment(LIST, false);
+	        } else if (state.isClosed()) {
+	            // If the session state is closed:
+	            // Show the login fragment
+	            showFragment(SPLASH, false);
+	        }
+	    }
+	}
+	@Override
+	protected void onResumeFragments() {
+	    super.onResumeFragments();
+	    Session session = Session.getActiveSession();
+
+	    if (session != null && session.isOpened()) {
+	        // if the session is already open,
+	        // try to show the selection fragment
+	        showFragment(LIST, false);
+	    } else {
+	        // otherwise present the splash screen
+	        // and ask the person to login.
+	        showFragment(SPLASH, false);
+	    }
+	}
+	
+	//End of Facebook Fragment managing
+	
 	/**
 	 * Backward-compatible version of {@link ActionBar#getThemedContext()} that
 	 * simply returns the {@link android.app.Activity} if
@@ -112,6 +324,7 @@ public class RUNowMainActivity extends Activity implements
 
 	@Override
 	public void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
 		// Restore the previously serialized current dropdown position.
 		if (savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM)) {
 			getActionBar().setSelectedNavigationItem(
@@ -121,9 +334,11 @@ public class RUNowMainActivity extends Activity implements
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		// Serialize the current dropdown position.
+		super.onSaveInstanceState(outState);
+		//Serialize the current dropdown position.
 		outState.putInt(STATE_SELECTED_NAVIGATION_ITEM, getActionBar()
 				.getSelectedNavigationIndex());
+		uiHelper.onSaveInstanceState(outState);
 	}
 
 	@Override
@@ -142,130 +357,122 @@ public class RUNowMainActivity extends Activity implements
 			Intent intentCreate = new Intent(this, createEventActivity.class);
 			startActivity(intentCreate);
 			return true;
+		case id.menu_logout:
+			Session session = Session.getActiveSession();
+			if(session!=null)
+				session.closeAndClearTokenInformation();
+			return true;
 		}
 		return false;
 	}
+	//TODO
 
 	@Override
 	public boolean onNavigationItemSelected(int position, long id) {
-		final ListView listView = (ListView)findViewById(R.id.listView_events);
+		
 		
 		String tag=getString(R.string.title_all);
 		if(position>0)
 			tag = tags[position-1];
-		final Event[] events = getEvents(tag);
-		EventAdapter adapter = new EventAdapter(this, events);
-		listView.setAdapter(adapter);
-
-		listView.setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				// Toast.makeText(getApplicationContext(), "Clicked "+position,
-				// Toast.LENGTH_SHORT).show();
-				Intent intent = new Intent(RUNowMainActivity.this,
-						detailsEventActivity.class);
-				intent.putExtra("event", events[position]);
-				startActivity(intent);
-			}
-		});
+		
+		new FetchEventsTask(this).execute(tag);
+		
 		return true;
 	}
-
-	private Event[] getEvents(String tag) {
-		// fetch events from server
-		HttpClient httpclient = new DefaultHttpClient();
-		HttpGet httpget = new HttpGet(getString(R.string.url) + "/events");
-		HttpResponse response;
-		try {
-			response = httpclient.execute(httpget);
-			Log.i("RUNow Server", response.getStatusLine().toString());
-			HttpEntity entity = response.getEntity();
-			if(entity!=null){
-                InputStream instream = entity.getContent();
-                String result= convertStreamToString(instream);
-                JSONObject json=new JSONObject(result);
-                JSONArray nameArray=json.names();
-                JSONArray valArray=json.toJSONArray(nameArray);
-                Log.i("RUNow Server",valArray.getString(0));
-                instream.close();        		
+	
+	private class FetchEventsTask extends AsyncTask<String, Integer, Event[]> {
+		Context context;
+		ProgressDialog waitSpinner;
+		
+		public FetchEventsTask(Context context){
+			this.context=context;
+			waitSpinner=new ProgressDialog(this.context);
+		}
+		@Override
+		protected Event[] doInBackground(String... arg0) {
+			publishProgress(null);
 			
-                JSONArray events = (JSONArray) valArray.get(0);
-				Event[] values = new Event[events.length()];
-				// Log.i("JSON",events.toString());
-				for (int i = 0; i < values.length; i++) {
-					Log.i("JSON", events.get(i).toString());
-					JSONObject event = (JSONObject) events.get(i);
-					DateFormat df = new SimpleDateFormat(
-							"yyyy-MM-dd'T'HH:mm:ss'Z'");
-					String when = event.getString("when");
-					values[i] = new Event(
-							event.getInt("id"),
-							event.getString("name"),
-							null,
-							(when.equals("null") ? new Date() : df.parse(when)),
-							event.getString("location"), event
-									.getString("description"), event
-									.getString("url"), event
-									.getString("image_url"), 
-									"" // tag
-					);
+			
+			HttpClient httpclient = new DefaultHttpClient();
+			HttpGet httpget = new HttpGet(getString(R.string.url) + "/events");
+			HttpResponse response;
+			try {
+				response = httpclient.execute(httpget);
+				//Log.i("RUNow Server", response.getStatusLine().toString());
+				HttpEntity entity = response.getEntity();
+				if(entity!=null){
+	                InputStream instream = entity.getContent();
+	                String result= convertStreamToString(instream);
+	                JSONObject json=new JSONObject(result);
+	                JSONArray nameArray=json.names();
+	                JSONArray valArray=json.toJSONArray(nameArray);
+	                Log.i("RUNow Server",valArray.getString(0));
+	                instream.close();        		
+				
+	                JSONArray events = (JSONArray) valArray.get(0);
+					Event[] values = new Event[events.length()];
+					// Log.i("JSON",events.toString());
+					for (int i = 0; i < values.length; i++) {
+						Log.i("JSON", events.get(i).toString());
+						JSONObject event = (JSONObject) events.get(i);
+						DateFormat df = new SimpleDateFormat(
+								"yyyy-MM-dd'T'HH:mm:ss'Z'");
+						String when = event.getString("when");
+						values[i] = new Event(
+								event.getInt("id"),
+								event.getString("name"),
+								null,
+								(when.equals("null") ? new Date() : df.parse(when)),
+								event.getString("location"),
+								event.getString("description"),
+								event.getString("url"),
+								event.getString("image_url"), 
+										"" // tag
+						);
+						if(isCancelled()) break;
+						//publishProgress((int)( (i/values.length) *100));
+					}
+					return values;
 				}
-				return values;
-			}
 
-		} catch (Exception e) {
-			Log.e("RUNow Server", e.toString());
-			e.printStackTrace();
+			} catch (Exception e) {
+				Log.e("RUNow Server", e.toString());
+				e.printStackTrace();
+			}
+			
+			return null;
+		}
+		protected void onProgressUpdate(Integer... progress){
+			//super.onProgressUpdate(progress);
+			waitSpinner =ProgressDialog.show(context,"Please wait...", "Fetching events from server",true);
 		}
 
-		/*
-		 * fabricating dummy values* Event[] values = new Event[50]; String[]
-		 * tags = new String[]{"one","two"}; for(int i=0;i<values.length;i++)
-		 * values[i]=new
-		 * Event(Integer.toString(position)+" "+Integer.toString(i),new
-		 * Date(0),tags); /*
-		 */
-		/* premade dummy values */
 
-		// updated to include new class members
-		Event[] values = new Event[3];
-		String defaultDescription = "default description default description default description default description default description default description";
-		String defaultLocation = "default location";
-		values[0] = new Event(10, "Soccer", null, new GregorianCalendar(2013,
-				3, 8, 15, 0).getTime(), defaultLocation, "sports", "",
-				defaultDescription, "");
-		values[1] = new Event(11, "Board Games", null, new GregorianCalendar(
-				2013, 3, 8, 19, 20).getTime(), defaultLocation, "", "",
-				defaultDescription, "");
-		values[2] = new Event(12, "Chemistry Review", null,
-				new GregorianCalendar(2013, 3, 8, 20, 15).getTime(),
-				defaultLocation, "studying", "", defaultDescription, "");
-		// values[3]=new Event("Basketball",new GregorianCalendar(2013, 3, 8,
-		// 20, 45).getTime(), new String[]{"sports"});
-		// TODO fix null pointer when trying to view a tag with more than one
-		// event
+		protected void onPostExecute(final Event[] result){
+			final ListView listView = (ListView)findViewById(R.id.listView_events);
+			EventAdapter adapter = new EventAdapter(context, result);
+			listView.setAdapter(adapter);
 
-		if (tag != getString(R.string.title_all)) {
-			// iterate through array of events, build PriorityQueue of matching
-			// events ordering by time
-			// then create array from PriorityQueue
-
-			PriorityQueue<Event> matches = new PriorityQueue<Event>();
-			for (Event event : values) {
-				if (tag.equals(event.tag))
-					matches.add(event);
-			}
-			Event[] toReturn = new Event[matches.size()];
-
-			for (int i = 0; i < matches.size(); i++) {
-				toReturn[i] = matches.remove();
-			}
-			return toReturn;
+			waitSpinner.cancel();
+			
+			listView.setOnItemClickListener(new OnItemClickListener() {
+				public void onItemClick(AdapterView<?> parent, View view,
+						int position, long id) {
+					// Toast.makeText(getApplicationContext(), "Clicked "+position,
+					// Toast.LENGTH_SHORT).show();
+					Intent intent = new Intent(RUNowMainActivity.this,
+							detailsEventActivity.class);
+					intent.putExtra("event", result[position]);
+					intent.putExtra("facebookUser",facebookUser.getInnerJSONObject().toString());
+					startActivity(intent);
+				}
+			});
+			
+			
 		}
-		return values;
-		/**/
+
+		
 	}
-
 	// from
 	// http://senior.ceng.metu.edu.tr/2009/praeda/2009/01/11/a-simple-restful-client-at-android/
 	private static String convertStreamToString(InputStream is) {
