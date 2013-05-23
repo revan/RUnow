@@ -422,10 +422,10 @@ public class RUNowMainActivity extends FragmentActivity implements
 							event.getString("name"),
 							null,
 							(when.equals("null") ? new Date() : df.parse(when)),
-							event.getString("location"), event
-									.getString("description"), event
-									.getString("url"), event
-									.getString("image_url"), 
+							event.getString("location"),
+							event.getString("description"),
+							event.getString("url"),
+							event.getString("image_url"), 
 									"" // tag
 					);
 				}
