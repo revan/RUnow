@@ -34,7 +34,9 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.content.Context;
@@ -366,125 +368,110 @@ public class RUNowMainActivity extends FragmentActivity implements
 
 	@Override
 	public boolean onNavigationItemSelected(int position, long id) {
-		final ListView listView = (ListView)findViewById(R.id.listView_events);
+		
 		
 		String tag=getString(R.string.title_all);
 		if(position>0)
 			tag = tags[position-1];
-		final Event[] events = getEvents(tag);
-		EventAdapter adapter = new EventAdapter(this, events);
-		listView.setAdapter(adapter);
-
-		listView.setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				// Toast.makeText(getApplicationContext(), "Clicked "+position,
-				// Toast.LENGTH_SHORT).show();
-				Intent intent = new Intent(RUNowMainActivity.this,
-						detailsEventActivity.class);
-				intent.putExtra("event", events[position]);
-				intent.putExtra("facebookUser",facebookUser.getInnerJSONObject().toString());
-				startActivity(intent);
-			}
-		});
+		
+		new FetchEventsTask(this).execute(tag);
+		
 		return true;
 	}
-
-	private Event[] getEvents(String tag) {
-		// fetch events from server
-		HttpClient httpclient = new DefaultHttpClient();
-		HttpGet httpget = new HttpGet(getString(R.string.url) + "/events");
-		HttpResponse response;
-		try {
-			response = httpclient.execute(httpget);
-			Log.i("RUNow Server", response.getStatusLine().toString());
-			HttpEntity entity = response.getEntity();
-			if(entity!=null){
-                InputStream instream = entity.getContent();
-                String result= convertStreamToString(instream);
-                JSONObject json=new JSONObject(result);
-                JSONArray nameArray=json.names();
-                JSONArray valArray=json.toJSONArray(nameArray);
-                Log.i("RUNow Server",valArray.getString(0));
-                instream.close();        		
+	
+	private class FetchEventsTask extends AsyncTask<String, Integer, Event[]> {
+		Context context;
+		ProgressDialog waitSpinner;
+		
+		public FetchEventsTask(Context context){
+			this.context=context;
+			waitSpinner=new ProgressDialog(this.context);
+		}
+		@Override
+		protected Event[] doInBackground(String... arg0) {
+			publishProgress(null);
 			
-                JSONArray events = (JSONArray) valArray.get(0);
-				Event[] values = new Event[events.length()];
-				// Log.i("JSON",events.toString());
-				for (int i = 0; i < values.length; i++) {
-					Log.i("JSON", events.get(i).toString());
-					JSONObject event = (JSONObject) events.get(i);
-					DateFormat df = new SimpleDateFormat(
-							"yyyy-MM-dd'T'HH:mm:ss'Z'");
-					String when = event.getString("when");
-					values[i] = new Event(
-							event.getInt("id"),
-							event.getString("name"),
-							null,
-							(when.equals("null") ? new Date() : df.parse(when)),
-							event.getString("location"),
-							event.getString("description"),
-							event.getString("url"),
-							event.getString("image_url"), 
-									"" // tag
-					);
+			
+			HttpClient httpclient = new DefaultHttpClient();
+			HttpGet httpget = new HttpGet(getString(R.string.url) + "/events");
+			HttpResponse response;
+			try {
+				response = httpclient.execute(httpget);
+				//Log.i("RUNow Server", response.getStatusLine().toString());
+				HttpEntity entity = response.getEntity();
+				if(entity!=null){
+	                InputStream instream = entity.getContent();
+	                String result= convertStreamToString(instream);
+	                JSONObject json=new JSONObject(result);
+	                JSONArray nameArray=json.names();
+	                JSONArray valArray=json.toJSONArray(nameArray);
+	                Log.i("RUNow Server",valArray.getString(0));
+	                instream.close();        		
+				
+	                JSONArray events = (JSONArray) valArray.get(0);
+					Event[] values = new Event[events.length()];
+					// Log.i("JSON",events.toString());
+					for (int i = 0; i < values.length; i++) {
+						Log.i("JSON", events.get(i).toString());
+						JSONObject event = (JSONObject) events.get(i);
+						DateFormat df = new SimpleDateFormat(
+								"yyyy-MM-dd'T'HH:mm:ss'Z'");
+						String when = event.getString("when");
+						values[i] = new Event(
+								event.getInt("id"),
+								event.getString("name"),
+								null,
+								(when.equals("null") ? new Date() : df.parse(when)),
+								event.getString("location"),
+								event.getString("description"),
+								event.getString("url"),
+								event.getString("image_url"), 
+										"" // tag
+						);
+						if(isCancelled()) break;
+						//publishProgress((int)( (i/values.length) *100));
+					}
+					return values;
 				}
-				return values;
-			}
 
-		} catch (Exception e) {
-			Log.e("RUNow Server", e.toString());
-			e.printStackTrace();
+			} catch (Exception e) {
+				Log.e("RUNow Server", e.toString());
+				e.printStackTrace();
+			}
+			
+			return null;
+		}
+		protected void onProgressUpdate(Integer... progress){
+			//super.onProgressUpdate(progress);
+			waitSpinner =ProgressDialog.show(context,"Please wait...", "Fetching events from server",true);
 		}
 
-		/*
-		 * fabricating dummy values* Event[] values = new Event[50]; String[]
-		 * tags = new String[]{"one","two"}; for(int i=0;i<values.length;i++)
-		 * values[i]=new
-		 * Event(Integer.toString(position)+" "+Integer.toString(i),new
-		 * Date(0),tags); /*
-		 */
-		/* premade dummy values */
 
-		// updated to include new class members
-		Event[] values = new Event[3];
-		String defaultDescription = "default description default description default description default description default description default description";
-		String defaultLocation = "default location";
-		values[0] = new Event(10, "Soccer", null, new GregorianCalendar(2013,
-				3, 8, 15, 0).getTime(), defaultLocation, "sports", "",
-				defaultDescription, "");
-		values[1] = new Event(11, "Board Games", null, new GregorianCalendar(
-				2013, 3, 8, 19, 20).getTime(), defaultLocation, "", "",
-				defaultDescription, "");
-		values[2] = new Event(12, "Chemistry Review", null,
-				new GregorianCalendar(2013, 3, 8, 20, 15).getTime(),
-				defaultLocation, "studying", "", defaultDescription, "");
-		// values[3]=new Event("Basketball",new GregorianCalendar(2013, 3, 8,
-		// 20, 45).getTime(), new String[]{"sports"});
-		// TODO fix null pointer when trying to view a tag with more than one
-		// event
+		protected void onPostExecute(final Event[] result){
+			final ListView listView = (ListView)findViewById(R.id.listView_events);
+			EventAdapter adapter = new EventAdapter(context, result);
+			listView.setAdapter(adapter);
 
-		if (tag != getString(R.string.title_all)) {
-			// iterate through array of events, build PriorityQueue of matching
-			// events ordering by time
-			// then create array from PriorityQueue
-
-			PriorityQueue<Event> matches = new PriorityQueue<Event>();
-			for (Event event : values) {
-				if (tag.equals(event.tag))
-					matches.add(event);
-			}
-			Event[] toReturn = new Event[matches.size()];
-
-			for (int i = 0; i < matches.size(); i++) {
-				toReturn[i] = matches.remove();
-			}
-			return toReturn;
+			waitSpinner.cancel();
+			
+			listView.setOnItemClickListener(new OnItemClickListener() {
+				public void onItemClick(AdapterView<?> parent, View view,
+						int position, long id) {
+					// Toast.makeText(getApplicationContext(), "Clicked "+position,
+					// Toast.LENGTH_SHORT).show();
+					Intent intent = new Intent(RUNowMainActivity.this,
+							detailsEventActivity.class);
+					intent.putExtra("event", result[position]);
+					intent.putExtra("facebookUser",facebookUser.getInnerJSONObject().toString());
+					startActivity(intent);
+				}
+			});
+			
+			
 		}
-		return values;
-		/**/
+
+		
 	}
-
 	// from
 	// http://senior.ceng.metu.edu.tr/2009/praeda/2009/01/11/a-simple-restful-client-at-android/
 	private static String convertStreamToString(InputStream is) {
