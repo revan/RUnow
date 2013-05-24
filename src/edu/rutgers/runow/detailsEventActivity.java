@@ -31,11 +31,13 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -80,12 +82,18 @@ public class detailsEventActivity extends Activity{
 		actionBar.setDisplayShowHomeEnabled(true);
 		actionBar.setTitle(event.name);
 		actionBar.setDisplayShowTitleEnabled(true);
-		
-		final ListView listView = (ListView) findViewById(R.id.listView_comments);
+
+		final LinearLayout commentsLayout = (LinearLayout)findViewById(R.id.list_comments);
 		
 		final Comment[] comments = getComments(event.url);
-		CommentAdapter adapter = new CommentAdapter(this, comments);
-		listView.setAdapter(adapter);
+		
+		for(Comment temp : comments){
+			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			View commentView = inflater.inflate(R.layout.list_comment, null, false);
+			((TextView) commentView.findViewById(R.id.listCommentUser)).setText(temp.user);
+			((TextView) commentView.findViewById(R.id.listCommentContent)).setText(temp.content);
+			commentsLayout.addView(commentView);
+		}
 		
 		final Button post = (Button)findViewById(R.id.detailsCommentButton);
 		

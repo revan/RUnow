@@ -458,8 +458,6 @@ public class RUNowMainActivity extends FragmentActivity implements
 			listView.setOnItemClickListener(new OnItemClickListener() {
 				public void onItemClick(AdapterView<?> parent, View view,
 						int position, long id) {
-					// Toast.makeText(getApplicationContext(), "Clicked "+position,
-					// Toast.LENGTH_SHORT).show();
 					Intent intent = new Intent(RUNowMainActivity.this,
 							detailsEventActivity.class);
 					intent.putExtra("event", result[position]);
