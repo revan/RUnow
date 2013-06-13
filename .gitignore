@@ -3,5 +3,6 @@
 .settings/
 bin/
 gen/
+libs/
 proguard-project.txt
 project.properties

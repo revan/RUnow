@@ -10,9 +10,17 @@ import java.io.InputStreamReader;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.params.ClientPNames;
+import org.apache.http.client.params.CookiePolicy;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -47,6 +55,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class RUNowMainActivity extends FragmentActivity implements
 		ActionBar.OnNavigationListener {
@@ -69,6 +78,9 @@ public class RUNowMainActivity extends FragmentActivity implements
 	        onSessionStateChange(session, state, exception);
 	    }
 	};
+	
+	HttpClient httpclient = new DefaultHttpClient();
+	HttpContext localContext = new BasicHttpContext();
 	
 	String[] tags = new String[] { "sports", "studying" };
 
@@ -110,10 +122,25 @@ public class RUNowMainActivity extends FragmentActivity implements
 						defaultOptions).build();
 		ImageLoader.getInstance().init(config);
 		
-		
 		//Allow non-asynchronous network io -- terrible coding practice, will cause UI lags
 		//TODO asynchronous network io
 		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build()); 
+		
+		// Log in
+		Session session = Session.getActiveSession();
+		if (session.isOpened()) {
+			httpclient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
+			HttpPost httppost = new HttpPost(getString(R.string.url) + "/auth/facebook_access_token/callback?access_token=" + session.getAccessToken());
+			HttpResponse response;
+			try {
+				response = httpclient.execute(httppost,localContext);
+				HttpEntity entity = response.getEntity();
+				Toast.makeText(this, EntityUtils.toString(entity), Toast.LENGTH_LONG).show();
+			} catch (Exception e) {
+				Log.e("RUNow Server Login Fail", e.toString());
+				e.printStackTrace();
+			}
+		}
 		
 		
 		//hide fragments on start
@@ -381,13 +408,13 @@ public class RUNowMainActivity extends FragmentActivity implements
 		@Override
 		protected Event[] doInBackground(String... arg0) {
 			publishProgress(null);
+
 			
 			
-			HttpClient httpclient = new DefaultHttpClient();
 			HttpGet httpget = new HttpGet(getString(R.string.url) + "/events");
 			HttpResponse response;
 			try {
-				response = httpclient.execute(httpget);
+				response = httpclient.execute(httpget,localContext);
 				//Log.i("RUNow Server", response.getStatusLine().toString());
 				HttpEntity entity = response.getEntity();
 				if(entity!=null){
