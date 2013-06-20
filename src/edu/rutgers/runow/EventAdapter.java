@@ -3,6 +3,8 @@ package edu.rutgers.runow;
 
 import java.text.SimpleDateFormat;
 
+import org.apache.http.client.methods.HttpPost;
+
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import android.content.Context;
@@ -43,7 +45,9 @@ public class EventAdapter extends ArrayAdapter<Event> {
 		// TODO placeholder for image so when it loads
 		// it doesn't resize event list!
 		
-		ImageLoader.getInstance().displayImage(temp.image_url, image);
+		String photoURI = context.getString(R.string.url) + "/" + temp.photo_url;
+		
+		ImageLoader.getInstance().displayImage(photoURI, image);
 
 		return eventView;
 	}

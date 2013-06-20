@@ -134,6 +134,7 @@
             android:background="@drawable/inset_creation"
             android:orientation="vertical" >
             <TextView
+            android:id="@+id/whenVisibleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#858585"

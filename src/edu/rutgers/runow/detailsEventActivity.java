@@ -73,7 +73,7 @@ public class detailsEventActivity extends Activity{
 		name.setText(event.name);
 		dateAndLocation.setText(new SimpleDateFormat("h:mm a").format(event.when) + " at " + event.location);
 		description.setText(event.description);
-		ImageLoader.getInstance().displayImage(event.image_url, image);
+		ImageLoader.getInstance().displayImage(getString(R.string.url) + "/" + event.photo_url, image);
 		
 		final ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);

@@ -443,7 +443,7 @@ public class RUNowMainActivity extends FragmentActivity implements
 								event.getString("location"),
 								event.getString("description"),
 								event.getString("url"),
-								event.getString("image_url"), 
+								event.getString("photo_url"), 
 										"" // tag
 						);
 						if(isCancelled()) break;

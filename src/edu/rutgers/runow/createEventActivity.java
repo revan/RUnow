@@ -3,19 +3,29 @@ package edu.rutgers.runow;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ContentBody;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
 import org.json.JSONObject;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -48,7 +58,9 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 public class createEventActivity extends FragmentActivity {
 	
@@ -60,11 +72,16 @@ public class createEventActivity extends FragmentActivity {
     private Button useOurs;
     private static Button dateButton;
     private static Button timeButton;
+    private static TextView whenVisible;
     
     private static Calendar c;
     static int hour, minute;
     static int year, month, day;
     private static DecimalFormat mFormat;
+    
+    private static int daysFromNow;
+    private static Date when;
+	private static Date today;
     
 	private static final String BITMAP_STORAGE_KEY = "viewbitmap";
 	private static final String IMAGEVIEW_VISIBILITY_STORAGE_KEY = "imageviewvisibility";
@@ -81,6 +98,7 @@ public class createEventActivity extends FragmentActivity {
 		takePhoto = (Button) findViewById(R.id.takePhotoButton);
 		mImageView = (ImageView) findViewById(R.id.eventPhotoPreview);
 		useOurs.setEnabled(false);
+		whenVisible = (TextView) findViewById(R.id.whenVisibleText);
 		
 		c = Calendar.getInstance();
 		hour = c.get(Calendar.HOUR_OF_DAY) + 1;
@@ -89,19 +107,22 @@ public class createEventActivity extends FragmentActivity {
 		month = c.get(Calendar.MONTH);
 		day = c.get(Calendar.DAY_OF_MONTH);
 		
+	    today = new Date(year, month+1, day, hour, minute);
+	    when = today;
+	    
 		mFormat = new DecimalFormat("00"); 
 		
-		if (hour > 12) {
-			timeButton.setText((hour - 12) + ":" + mFormat.format(minute) + " PM");
-		} else if (hour == 0) {
-			timeButton.setText("12:" + mFormat.format(minute) + " AM");
-		} else if (hour == 12) {
-			timeButton.setText("12:" + mFormat.format(minute) + " PM");
+		if (when.getHours() > 12) {
+			timeButton.setText((when.getHours() - 12) + ":" + mFormat.format(when.getMinutes()) + " PM");
+		} else if (when.getHours() == 0) {
+			timeButton.setText("12:" + mFormat.format(when.getMinutes()) + " AM");
+		} else if (when.getHours() == 12) {
+			timeButton.setText("12:" + mFormat.format(when.getMinutes()) + " PM");
 		} else {
-			timeButton.setText(hour + ":" + mFormat.format(minute) + " AM");
+			timeButton.setText(when.getHours() + ":" + mFormat.format(when.getMinutes()) + " AM");
 		}
 		
-		dateButton.setText(month + "/" + day + "/" + year);
+		dateButton.setText(when.getMonth() + "/" + when.getDate() + "/" + when.getYear());
 		
 		DisplayImageOptions options = new DisplayImageOptions.Builder()
 				.bitmapConfig(Bitmap.Config.RGB_565)
@@ -120,24 +141,25 @@ public class createEventActivity extends FragmentActivity {
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			// Create a new instance of TimePickerDialog and return it
-			return new TimePickerDialog(getActivity(), this, hour, minute,
+			return new TimePickerDialog(getActivity(), this, when.getHours(), when.getMinutes(),
 					DateFormat.is24HourFormat(getActivity()));
 		}
 
 		public void onTimeSet(TimePicker view, int selectedHour, int selectedMinute) {
-			hour = selectedHour;
-			minute = selectedMinute;
+		
+			when.setHours(selectedHour);
+			when.setMinutes(selectedMinute);
 			
 			//TODO actually calculate when event will become visible and display it!
 			
-			if (hour > 12) {
-				timeButton.setText((hour - 12) + ":" + mFormat.format(minute) + " PM");
-			} else if (hour == 0) {
-				timeButton.setText("12:" + mFormat.format(minute) + " AM");
-			} else if (hour == 12) {
-				timeButton.setText("12:" + mFormat.format(minute) + " PM");
+			if (when.getHours() > 12) {
+				timeButton.setText((when.getHours() - 12) + ":" + mFormat.format(when.getMinutes()) + " PM");
+			} else if (when.getHours() == 0) {
+				timeButton.setText("12:" + mFormat.format(when.getMinutes()) + " AM");
+			} else if (when.getHours() == 12) {
+				timeButton.setText("12:" + mFormat.format(when.getMinutes()) + " PM");
 			} else {
-				timeButton.setText(hour + ":" + mFormat.format(minute) + " AM");
+				timeButton.setText(when.getHours() + ":" + mFormat.format(when.getMinutes()) + " AM");
 			}
 			
 			
@@ -151,15 +173,25 @@ public class createEventActivity extends FragmentActivity {
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 
 			// Create a new instance of DatePickerDialog and return it
-			return new DatePickerDialog(getActivity(), this, year, month, day);
+			return new DatePickerDialog(getActivity(), this, when.getYear(), when.getMonth(), when.getDate());
 		}
 
 		public void onDateSet(DatePicker view, int selectedYear, int selectedMonth, int selectedDay) {
-			year = selectedYear;
-			month = selectedMonth;
-			day = selectedDay;
+			when.setYear(selectedYear);
+			when.setMonth(selectedMonth);
+			when.setDate(selectedDay);
 			
-			dateButton.setText(month + "/" + day + "/" + year);
+			dateButton.setText(when.getMonth() + "/" + when.getDate() + "/" + when.getYear());
+			
+			daysFromNow = Days.daysBetween(new DateTime(today), new DateTime(when)).getDays();
+			
+			if (daysFromNow == 1) {
+				whenVisible.setText("Your event will become visible in " + daysFromNow + " day.");
+			} else if (daysFromNow > 1) {
+				whenVisible.setText("Your event will become visible in " + daysFromNow + " days.");
+			} else {
+				whenVisible.setText("Your event will become visible immediately.");
+			}
 		}
 	}
 
@@ -208,6 +240,14 @@ public class createEventActivity extends FragmentActivity {
 		return storageDir;
 	}
 	
+	private void galleryAddPic() {
+	    Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+	    File f = new File(mCurrentPhotoPath);
+	    Uri contentUri = Uri.fromFile(f);
+	    mediaScanIntent.setData(contentUri);
+	    this.sendBroadcast(mediaScanIntent);
+	}
+	
 	private File createImageFile() throws IOException {
 		// Create an image file name
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -246,6 +286,7 @@ public class createEventActivity extends FragmentActivity {
 				
 				ImageLoader.getInstance().displayImage("file://" + mCurrentPhotoPath, mImageView, options);
 				takePhoto.setText("Take\nAnother");
+				galleryAddPic();
 			}
 		} // ACTION_TAKE_PHOTO_B	
 	
@@ -291,63 +332,72 @@ public class createEventActivity extends FragmentActivity {
 		String name = nameField.getText().toString();
 		String location = locationField.getText().toString();
 		String description = descriptionsField.getText().toString();
-		Date when = new Date(year, month, day, hour, minute);
 		String tag = "no tags";
 		if (tag.equals("no tags"))
 			tag = "";
 		
-		// encode image at max width 1080 pixels
-		
-	    int targetW = 1080;
-	    int targetH = 608;
-	  
-	    // Get the dimensions of the bitmap
-	    BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-	    bmOptions.inJustDecodeBounds = true;
-	    BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-	    int photoW = bmOptions.outWidth;
-	    int photoH = bmOptions.outHeight;
-	  
-	    // Determine how much to scale down the image
-		int scaleFactor = 1;
-		if ((targetW > 0) || (targetH > 0)) {
-			scaleFactor = Math.min(photoW/targetW, photoH/targetH);	
-		}
-	  
-	    // Decode the image file into a Bitmap sized to fill the View
-	    bmOptions.inJustDecodeBounds = false;
-	    bmOptions.inSampleSize = scaleFactor;
-	    bmOptions.inPurgeable = true;
-	  
-	    Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();  
-		bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-		
-		byte[] b = baos.toByteArray(); 
-		
-		String encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
+//		// encode image at max width 1080 pixels
+//		
+//	    int targetW = 1080;
+//	    int targetH = 608;
+//	  
+//	    // Get the dimensions of the bitmap
+//	    BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+//	    bmOptions.inJustDecodeBounds = true;
+//	    BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+//	    int photoW = bmOptions.outWidth;
+//	    int photoH = bmOptions.outHeight;
+//	  
+//	    // Determine how much to scale down the image
+//		int scaleFactor = 1;
+//		if ((targetW > 0) || (targetH > 0)) {
+//			scaleFactor = Math.min(photoW/targetW, photoH/targetH);	
+//		}
+//	  
+//	    // Decode the image file into a Bitmap sized to fill the View
+//	    bmOptions.inJustDecodeBounds = false;
+//	    bmOptions.inSampleSize = scaleFactor;
+//	    bmOptions.inPurgeable = true;
+//	  
+//	    Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+	    
+	    File photo = new File(mCurrentPhotoPath);
 
 		// send event to server
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(getString(R.string.url) + "/events");
-		httppost.addHeader(new BasicHeader(HTTP.CONTENT_TYPE,
-				"application/json"));
 		HttpResponse response;
+
+		MultipartEntity mpEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 		
 		JSONObject json = new JSONObject();
 		try {
-			JSONObject data = new JSONObject();
-			data.put("name", name);
-			data.put("when", when.toString());
-			data.put("location", location);
-			data.put("description", description);
+			json.put("name", name);
+			json.put("when", when.toString());
+			json.put("location", location);
+			json.put("description", description);
 
-			json.put("event", data);
-			ByteArrayEntity message = new ByteArrayEntity(json.toString()
-					.getBytes("UTF8"));
-			httppost.setEntity(message);
+			//ByteArrayEntity message = new ByteArrayEntity(json.toString()
+			//		.getBytes("UTF8"));
+			
+			String jsonString = json.toString();
+			
+		    //jsonString = jsonString.replaceAll("\\\\","");
+			StringBody sb = new StringBody(jsonString, "application/json", Charset.forName("UTF-8"));
+			
+			
+		    mpEntity.addPart("event", sb);
+		    mpEntity.addPart("photo", new FileBody(photo, "image/jpeg"));
+		    
+		    httppost.setEntity(mpEntity);
+		    
+		    
 			response = httpclient.execute(httppost);
+			
+			HttpEntity entity = response.getEntity();
+			Log.e("RUNow Server", EntityUtils.toString(entity));
+			Log.e("RUNow Server", jsonString);
+			//Toast.makeText(this, jsonString, Toast.LENGTH_LONG).show();
 
 		} catch (Exception e) {
 			Log.e("RUNow Server", e.toString());
